@@ -1,6 +1,12 @@
 "use client"; // Ensure this is present for client-side rendering
 
-import React, { useState, useContext, useEffect, Suspense } from "react";
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  Suspense,
+  useDebugValue,
+} from "react";
 import { GlobalContext } from "@/context/GlobalContext";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -21,9 +27,11 @@ const ClientSideComponent = () => {
     user,
     isCoursePurchased,
     userDetails,
+    getUserInfo,
+
     checkCoursePurchasedPending,
   } = useContext(GlobalContext);
-
+  console.log("User", { userDetails, user });
   const [coursesOpen, setCoursesOpen] = useState(false); // For "My Courses" dropdown
 
   const searchParams = useSearchParams(); // Using useSearchParams in client component
@@ -40,7 +48,11 @@ const ClientSideComponent = () => {
   const [open, setOpen] = useState(false);
 
   const updateToRealTimeDateBase = async () => {
-    if (userDetails.referId && userDetails.referId === refer) setRefer(null);
+    if (!userDetails) getUserInfo(user);
+ 
+    if (userDetails.referId && userDetails.referId === refer) {
+      setRefer(null);
+    }
 
     const formData = new FormData();
     formData.append("referCode", userDetails.referId === refer ? null : refer);

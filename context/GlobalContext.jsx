@@ -2,7 +2,7 @@
 
 import { createContext, useEffect, useRef, useState } from "react";
 
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, getDocs } from "firebase/firestore";
 import { auth, db, realTimeDataBase } from "@/firebaseConfig";
 
 import { ref, get } from "firebase/database";
@@ -21,7 +21,9 @@ const GlobalProvider = ({ children }) => {
     setUser(userD);
 
     const userDoc = doc(db, "users", userD.uid);
+    console.log("UserDoc", userDoc);
     const userSnapshot = await getDoc(userDoc);
+    console.log("Usersafsfsd", userSnapshot);
     if (userSnapshot.exists()) {
       const userData = userSnapshot.data();
       // //console.log(userData);
@@ -51,8 +53,11 @@ const GlobalProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    console.log("Global Context");
     const unsubscribeAuth = auth.onAuthStateChanged((userD) => {
       if (userD) {
+        console.log("Global Context2");
+
         getUserInfo(userD); // Call getUserInfo when user is signed in
         setIsAuthorized(true);
         checkCoursePurchasedPending(userD.uid);
