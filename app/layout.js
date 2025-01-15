@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "DevApp",
-  description: "dev",
+  title: "TheDevSphere",
+  description: "TheDevSphere",
   manifest: "/manifest.json",
 };
 
