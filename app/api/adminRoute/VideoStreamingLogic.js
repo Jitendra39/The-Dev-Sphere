@@ -11,31 +11,24 @@ let Tokens = null;
 
 let error = null;
 
-
 async function fetchToken() {
   let tokenData = null;
-    const { data: tokenDatas, error } = await supabase
-      .from("tokens")
-      .select("*")
-      .single();
+  const { data: tokenDatas, error } = await supabase
+    .from("tokens")
+    .select("*")
+    .single();
 
-    if (error) {
-      console.error("Error fetching token from Supabase:", error.message);
-      error = error;
-      return null;
-    }
+  if (error) {
+    console.error("Error fetching token from Supabase:", error.message);
+    return null;
+  }
 
-    tokenData = tokenDatas;
+  tokenData = tokenDatas;
 
-    Tokens = tokenDatas;
- 
+  Tokens = tokenDatas;
 
   return tokenData;
 }
-
-
-
-
 
 export async function authorize(firebaseUserId) {
   try {
@@ -48,19 +41,16 @@ export async function authorize(firebaseUserId) {
     const oAuth2Client = new google.auth.OAuth2(
       credentials.client_id,
       credentials.client_secret,
-      credentials.redirect_uris[0]
+      credentials.redirect_uris[0],
     );
 
     let tokenData = Tokens ? Tokens : await fetchToken(false);
-   
+
     if (error || !tokenData) {
       // If no token exists or there was an error, initiate OAuth flow
- 
+
       await getAccessToken(oAuth2Client, firebaseUserId);
-    } 
-    else {
-    
-   
+    } else {
       oAuth2Client.setCredentials({
         access_token: tokenData.access_token,
         refresh_token: tokenData.refresh_token,
@@ -72,7 +62,6 @@ export async function authorize(firebaseUserId) {
       // Check if the token is expired
       const currentTime = new Date().getTime();
       if (currentTime > tokenData.expiry_date) {
-         
         await refreshAccessToken(oAuth2Client, firebaseUserId);
       }
     }
@@ -90,7 +79,7 @@ async function refreshAccessToken(oAuth2Client, firebaseUserId) {
   try {
     // Refresh the access token
     const { credentials } = await oAuth2Client.refreshAccessToken();
-   
+
     // Update the token in Supabase
     const { data, error } = await supabase
       .from("tokens")
@@ -101,11 +90,10 @@ async function refreshAccessToken(oAuth2Client, firebaseUserId) {
       })
       .eq("id", 3);
 
-   await fetchToken();
+    await fetchToken();
     if (error) {
       throw new Error("Error updating token in Supabase");
     }
-
   } catch (error) {
     console.error("Error refreshing access token:", error.message);
     throw error;
@@ -121,7 +109,6 @@ async function getAccessToken(oAuth2Client, firebaseUserId) {
       scope: ["https://www.googleapis.com/auth/drive.file"],
     });
 
-
     const input = require("prompt-sync")();
     const code = input("Enter the code from that page here: ").trim();
 
@@ -129,12 +116,11 @@ async function getAccessToken(oAuth2Client, firebaseUserId) {
       return reject("No code entered.");
     }
 
-
     oAuth2Client.getToken(code, async (err, token) => {
       if (err) {
         console.error(
           "Error retrieving access token:",
-          err.response?.data || err.message
+          err.response?.data || err.message,
         );
         return reject(err);
       }
@@ -258,7 +244,7 @@ export async function streamTsFile(file, res) {
     const drive = await authorize();
     const response = await drive.files.get(
       { fileId: file.id, alt: "media" },
-      { responseType: "stream" }
+      { responseType: "stream" },
     );
     return response.data;
     // response.data.pipe(res);
@@ -274,7 +260,7 @@ export async function fetchFileContents(fileId) {
     const drive = await authorize();
     const response = await drive.files.get(
       { fileId, alt: "media" },
-      { responseType: "stream" }
+      { responseType: "stream" },
     );
 
     let content = "";
@@ -337,8 +323,6 @@ export async function upsertPlaylists(users, doc, videoType) {
             ]);
 
           if (upsertError) throw upsertError;
-
-        
         }
       }
 

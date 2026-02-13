@@ -2,7 +2,7 @@ import withImages from "next-images";
 import withPWA from "next-pwa";
 
 /** @type {import('next').NextConfig} */
-const nextConfig = withImages({
+const nextConfig = {
   images: {
     remotePatterns: [
       {
@@ -15,14 +15,16 @@ const nextConfig = withImages({
       },
     ],
   },
-  // Additional Next.js configurations if needed
-});
+  // Turbopack config to avoid webpack conflict in Next.js 16
+  turbopack: {},
+};
 
-const config =
-  process.env.NODE_ENV === "production"
-    ? withPWA({
-        dest: "public", // Specifies where the service worker and assets will be output
-      })(nextConfig)
-    : nextConfig;
+let config = withImages(nextConfig);
+
+if (process.env.NODE_ENV === "production") {
+  config = withPWA({
+    dest: "public", // Specifies where the service worker and assets will be output
+  })(config);
+}
 
 export default config;
